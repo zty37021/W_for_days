@@ -1,3 +1,5 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "MyCharacter.h"
 
 
@@ -24,41 +26,23 @@ void AMyCharacter::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void AMyCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
+void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(InputComponent);
-	check(InputComponent);
-	InputComponent -> BindAxis("Forward", this, &AMyCharacter::MoveForward);
-	InputComponent -> BindAxis("Back", this, &AMyCharacter::MoveBack);
-	InputComponent -> BindAxis("Left", this, &AMyCharacter::MoveLeft);
-	InputComponent -> BindAxis("Right", this, &AMyCharacter::MoveRight);
-	//普通方式，需要创建方法，调用基类的接口来获取鼠标位移值
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveLeft", this, &AMyCharacter::MoveLeft);
+	PlayerInputComponent->BindAxis("MoveJump", this, &AMyCharacter::MoveJump);
+	PlayerInputComponent->BindAxis("Mouse_x", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("Mouse_y", this, &APawn::AddControllerPitchInput);
+}
 
-	//InputComponent -> BindAxis("Yaw", this, &AMyCharacter::Yaw);
-	//InputComponent -> BindAxis("Pitch", this, &AMyCharacter::Pitch);
-
-
-	//取巧，直接调用APawn中的方法
-	InputComponent->BindAxis("Yaw", this, &APawn::AddControllerYawInput);
-	InputComponent->BindAxis("Pitch", this, &APawn::AddControllerPitchInput);
-
-};
-
+//实现玩家控制
 void AMyCharacter::MoveForward(float amount)
 {
 	if (Controller && amount)
 	{
-		FVector fwd = GetActorForwardVector();
-		AddMovementInput(fwd, amount);
-	}
-}
-
-void AMyCharacter::MoveBack(float amount)
-{
-	if (Controller && amount)
-	{
-		FVector back = -GetActorForwardVector();
-		AddMovementInput(back, amount);
+		FVector MoveForward = GetActorForwardVector();
+		AddMovementInput(MoveForward, amount);
 	}
 }
 
@@ -66,32 +50,16 @@ void AMyCharacter::MoveLeft(float amount)
 {
 	if (Controller && amount)
 	{
-		FVector left = -GetActorRightVector();
-		AddMovementInput(left, amount);
+		FVector MoveLeft = -GetActorRightVector();
+		AddMovementInput(MoveLeft, amount);
 	}
 }
 
-void AMyCharacter::MoveRight(float amount)
+void AMyCharacter::MoveJump(float amount)
 {
 	if (Controller && amount)
 	{
-		FVector right = GetActorRightVector();
-		AddMovementInput(right, amount);
+		FVector MoveJump = GetActorUpVector();
+		AddMovementInput(MoveJump, amount);
 	}
 }
-
-//void AMyCharacter::Yaw(float amount)
-//{
-//	if (Controller && amount)
-//	{
-//		AddControllerYawInput(50.f * amount * GetWorld()->GetDeltaSeconds());
-//	}
-//}
-//
-//void AMyCharacter::Pitch(float amount)
-//{
-//	if (Controller && amount)
-//	{
-//		AddControllerPitchInput(-50.f * amount * GetWorld()->GetDeltaSeconds());
-//	}
-//}
